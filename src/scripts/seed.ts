@@ -1,3 +1,4 @@
+import { DataSource } from 'typeorm';
 import datasource from '../datasource';
 import { Spot } from '../modules/spots/spot.entity';
 
@@ -229,7 +230,7 @@ const seedSpots = [
     name: '北の丸公園',
     category: 'park',
     latitude: 35.6951,
-    longitude: 139.7540,
+    longitude: 139.754,
     description: '',
     image_url: '',
     address: '東京都千代田区北の丸公園1-1',
@@ -238,7 +239,7 @@ const seedSpots = [
     name: '東京駅前広場',
     category: 'park',
     latitude: 35.6805,
-    longitude: 139.7670,
+    longitude: 139.767,
     description: '',
     image_url: '',
     address: '東京都千代田区丸の内1-9',
@@ -356,7 +357,7 @@ const seedSpots = [
   {
     name: 'アトレ有楽町',
     category: 'shopping',
-    latitude: 35.6750,
+    latitude: 35.675,
     longitude: 139.7626,
     description: '',
     image_url: '',
@@ -395,7 +396,7 @@ const seedSpots = [
     name: '二重橋',
     category: 'tourism',
     latitude: 35.6806,
-    longitude: 139.7540,
+    longitude: 139.754,
     description: '',
     image_url: '',
     address: '東京都千代田区皇居外苑',
@@ -412,7 +413,7 @@ const seedSpots = [
   {
     name: '靖国神社',
     category: 'tourism',
-    latitude: 35.6940,
+    latitude: 35.694,
     longitude: 139.7444,
     description: '',
     image_url: '',
@@ -605,7 +606,7 @@ const seedSpots = [
   {
     name: '千代田区立九段診療所',
     category: 'hospital',
-    latitude: 35.6930,
+    latitude: 35.693,
     longitude: 139.7519,
     description: '',
     image_url: '',
@@ -671,7 +672,7 @@ const seedSpots = [
     name: '二重橋前駅',
     category: 'station',
     latitude: 35.6803,
-    longitude: 139.7610,
+    longitude: 139.761,
     description: '',
     image_url: '',
     address: '東京都千代田区丸の内3-1',
@@ -698,7 +699,7 @@ const seedSpots = [
     name: '京橋駅',
     category: 'station',
     latitude: 35.6763,
-    longitude: 139.7720,
+    longitude: 139.772,
     description: '',
     image_url: '',
     address: '東京都中央区京橋2',
@@ -724,7 +725,7 @@ const seedSpots = [
   {
     name: '新橋駅',
     category: 'station',
-    latitude: 35.6660,
+    latitude: 35.666,
     longitude: 139.7588,
     description: '',
     image_url: '',
@@ -733,31 +734,36 @@ const seedSpots = [
   {
     name: '茅場町駅',
     category: 'station',
-    latitude: 35.6790,
-    longitude: 139.7810,
+    latitude: 35.679,
+    longitude: 139.781,
     description: '',
     image_url: '',
     address: '東京都中央区日本橋茅場町1',
   },
 ];
 
-async function seed() {
-  await datasource.initialize();
-  const spotRepository = datasource.getRepository(Spot);
+export async function runSeed(ds: DataSource) {
+  const spotRepository = ds.getRepository(Spot);
 
   const count = await spotRepository.count();
   if (count > 0) {
     console.log(`シードデータは既に存在します（${count}件）。スキップします。`);
-    await datasource.destroy();
     return;
   }
 
   await spotRepository.save(seedSpots);
   console.log(`✓ シードデータを投入しました（${seedSpots.length}件）`);
+}
+
+async function seed() {
+  await datasource.initialize();
+  await runSeed(datasource);
   await datasource.destroy();
 }
 
-seed().catch((error) => {
-  console.error('シードエラー:', error);
-  process.exit(1);
-});
+if (require.main === module) {
+  seed().catch((error) => {
+    console.error('シードエラー:', error);
+    process.exit(1);
+  });
+}

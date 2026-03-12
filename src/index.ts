@@ -6,6 +6,7 @@ import authController from './modules/auth/auth.controller';
 import spotsController from './modules/spots/spots.controller';
 import favoritesController from './modules/favorites/favorites.controller';
 import datasource from './datasource';
+import { runSeed } from './scripts/seed';
 
 require('dotenv').config();
 const DEFAULT_PORT = 8888;
@@ -66,7 +67,7 @@ async function startServer() {
       break;
     } else {
       console.log(
-        `Port ${currentPort} is already in use, trying ${currentPort + 1}...`
+        `Port ${currentPort} is already in use, trying ${currentPort + 1}...`,
       );
       currentPort++;
     }
@@ -74,12 +75,12 @@ async function startServer() {
 
   if (!serverStarted) {
     console.error(
-      `\n✗ Could not find an available port after ${MAX_PORT_ATTEMPTS} attempts.`
+      `\n✗ Could not find an available port after ${MAX_PORT_ATTEMPTS} attempts.`,
     );
     console.error(
       `✗ Tried ports ${DEFAULT_PORT} to ${
         DEFAULT_PORT + MAX_PORT_ATTEMPTS - 1
-      }\n`
+      }\n`,
     );
     process.exit(1);
   }
@@ -89,6 +90,7 @@ async function startServer() {
 datasource
   .initialize()
   .then(async () => {
+    await runSeed(datasource);
     await startServer();
   })
   .catch((error) => console.error(error));
